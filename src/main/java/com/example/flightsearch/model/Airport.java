@@ -2,6 +2,7 @@ package com.example.flightsearch.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Table(name="airports")
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Airport {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

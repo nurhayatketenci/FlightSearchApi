@@ -1,6 +1,5 @@
 package com.example.flightsearch.service;
 
-import com.example.flightsearch.dto.FlightInfoRequest;
 import com.example.flightsearch.dto.OneWayFlightDto;
 import com.example.flightsearch.dto.RoundTripFlightDto;
 import com.example.flightsearch.exceptions.NotFoundException;
@@ -10,7 +9,7 @@ import com.example.flightsearch.repository.FlightRepository;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
+
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -93,4 +92,5 @@ public class FlightService {
         List<OneWayFlightDto> flightDtos = Collections.singletonList(this.modelMapper.map(flights, OneWayFlightDto.class));
         return flightDtos;
     }
+
 }
