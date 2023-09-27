@@ -14,7 +14,7 @@ public class DataGenerationJob {
     private final MockDataService mockDataService;
     private final FlightRepository flightRepository;
 
-    @Scheduled(cron = "0 * * * * ?")
+    @Scheduled(cron = "0 0 1 * * ?")
 
     public void generateMockData() {
         int numberOfFlightsToGenerate = 2;

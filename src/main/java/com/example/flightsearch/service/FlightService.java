@@ -1,5 +1,6 @@
 package com.example.flightsearch.service;
 
+import com.example.flightsearch.dto.FlightInfo;
 import com.example.flightsearch.dto.OneWayFlightDto;
 import com.example.flightsearch.dto.RoundTripFlightDto;
 import com.example.flightsearch.exceptions.NotFoundException;
@@ -47,50 +48,31 @@ public class FlightService {
         flightRepository.deleteById(id);
     }
 
-    public List<Flight> getAllFlights() {
-        return flightRepository.findAll();
+    public List<RoundTripFlightDto> getAllFlights() {
+        List<Flight> flights=this.flightRepository.findAll();
+        List<RoundTripFlightDto> flightDtos = Collections.singletonList(this.modelMapper.map(flights, RoundTripFlightDto.class));
+        return flightDtos;
+
     }
 
-    public Flight getFlightById(Long id) {
+    public RoundTripFlightDto getFlightById(Long id) {
         Optional<Flight> flightOptional = flightRepository.findById(id);
         if (flightOptional.isPresent()) {
-            return flightOptional.get();
+            RoundTripFlightDto flightDto =  this.modelMapper.map(flightOptional, RoundTripFlightDto.class);
+            return flightDto;
         } else {
             throw new NotFoundException("This flight not found");
         }
     }
 
-    public List<Flight> getByTerms(String departureAirport,
-                                   String arrivalAirport,
-                                   LocalDateTime departureDatetime,
-                                   LocalDateTime returnDatetime) {
-        Airport depAirport = this.airportService.findByCity(departureAirport);
-        Airport arrAirport = this.airportService.findByCity(arrivalAirport);
-        List<Flight> flights = this.flightRepository.findFlights(depAirport.getId(),
-                arrAirport.getId(), departureDatetime, returnDatetime);
-        return flights;
-    }
+    public List<FlightInfo> getFlightByTerms(FlightInfo flightInfo){
+        Airport depAirport = this.airportService.findByCity(flightInfo.getDepartureAirport().getCity());
+        Airport arrAirport = this.airportService.findByCity(flightInfo.getArrivalAirport().getCity());
 
-    public List<RoundTripFlightDto> getRoundTripFlights(
-            String departureAirport, String arrivalAirport, LocalDateTime departureDatetime, LocalDateTime returnDatetime) {
-        Airport depAirport = this.airportService.findByCity(departureAirport);
-        Airport arrAirport = this.airportService.findByCity(arrivalAirport);
         List<Flight> flights = this.flightRepository.findFlights(depAirport.getId(),
-                arrAirport.getId(), departureDatetime, returnDatetime);
-        List<RoundTripFlightDto> flightDtos = flights.stream()
-                .map(flight -> this.modelMapper.map(flight, RoundTripFlightDto.class))
-                .collect(Collectors.toList());
-
-        return flightDtos;
-    }
-
-    public List<OneWayFlightDto> getOneWayFlights(String departureAirport, String arrivalAirport, LocalDateTime departureDatetime) {
-        Airport depAirport = this.airportService.findByCity(departureAirport);
-        Airport arrAirport = this.airportService.findByCity(arrivalAirport);
-        List<Flight> flights = this.flightRepository.findFlights(depAirport.getId(),
-                arrAirport.getId(), departureDatetime, null);
-        List<OneWayFlightDto> flightDtos = Collections.singletonList(this.modelMapper.map(flights, OneWayFlightDto.class));
-        return flightDtos;
+                arrAirport.getId(),flightInfo.getDepartureDatetime(), flightInfo.getReturnDatetime());
+        List<FlightInfo> flightInfos = Collections.singletonList(this.modelMapper.map(flights, FlightInfo.class));
+        return flightInfos;
     }
 
 }
