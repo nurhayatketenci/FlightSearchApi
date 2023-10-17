@@ -10,9 +10,9 @@ import java.time.LocalDateTime;
 @Setter
 public class RoundTripFlightDto {
     private Long id;
-    private Airport departureCity;
-    private Airport arrivalCity;
+    private Airport departureAirport;
+    private Airport arrivalAirport;
     private LocalDateTime departureDatetime;
-    private LocalDateTime returnDepartureDatetime;
+    private LocalDateTime returnDatetime;
     private int price;
 }

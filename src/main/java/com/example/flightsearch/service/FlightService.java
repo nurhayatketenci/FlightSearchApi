@@ -1,19 +1,14 @@
 package com.example.flightsearch.service;
 
 import com.example.flightsearch.dto.FlightInfo;
-import com.example.flightsearch.dto.OneWayFlightDto;
 import com.example.flightsearch.dto.RoundTripFlightDto;
 import com.example.flightsearch.exceptions.NotFoundException;
-import com.example.flightsearch.model.Airport;
 import com.example.flightsearch.model.Flight;
 import com.example.flightsearch.repository.FlightRepository;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-
-import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -49,8 +44,10 @@ public class FlightService {
     }
 
     public List<RoundTripFlightDto> getAllFlights() {
-        List<Flight> flights=this.flightRepository.findAll();
-        List<RoundTripFlightDto> flightDtos = Collections.singletonList(this.modelMapper.map(flights, RoundTripFlightDto.class));
+        List<Flight> flights = this.flightRepository.findAll();
+        List<RoundTripFlightDto> flightDtos = flights.stream()
+                .map(flight -> this.modelMapper.map(flight, RoundTripFlightDto.class))
+                .collect(Collectors.toList());
         return flightDtos;
 
     }
@@ -58,20 +55,33 @@ public class FlightService {
     public RoundTripFlightDto getFlightById(Long id) {
         Optional<Flight> flightOptional = flightRepository.findById(id);
         if (flightOptional.isPresent()) {
-            RoundTripFlightDto flightDto =  this.modelMapper.map(flightOptional, RoundTripFlightDto.class);
+            RoundTripFlightDto flightDto = this.modelMapper.map(flightOptional, RoundTripFlightDto.class);
             return flightDto;
         } else {
             throw new NotFoundException("This flight not found");
         }
     }
 
-    public List<FlightInfo> getFlightByTerms(FlightInfo flightInfo){
-        Airport depAirport = this.airportService.findByCity(flightInfo.getDepartureAirport().getCity());
-        Airport arrAirport = this.airportService.findByCity(flightInfo.getArrivalAirport().getCity());
+    public List<FlightInfo> getFlightByTerms(FlightInfo flightInfo) {
+        Long depAirportId = this.airportService.findByCity(flightInfo.getDepartureAirport().getCity()).getId();
+        Long arrAirportId = this.airportService.findByCity(flightInfo.getArrivalAirport().getCity()).getId();
 
-        List<Flight> flights = this.flightRepository.findFlights(depAirport.getId(),
-                arrAirport.getId(),flightInfo.getDepartureDatetime(), flightInfo.getReturnDatetime());
-        List<FlightInfo> flightInfos = Collections.singletonList(this.modelMapper.map(flights, FlightInfo.class));
+        if (flightInfo.getReturnDatetime() == null) {
+            List<Flight> flights = this.flightRepository.
+                    findByDepartureAirportIdAndArrivalAirportIdAndDepartureDatetimeGreaterThanEqual(depAirportId, arrAirportId,
+                            flightInfo.getDepartureDatetime());
+            List<FlightInfo> flightInfos = flights.stream()
+                    .map(flight -> this.modelMapper.map(flight, FlightInfo.class))
+                    .collect(Collectors.toList());
+            return flightInfos;
+        }
+        List<Flight> flights = this.flightRepository.findByDepartureAirportIdAndArrivalAirportIdAndDepartureDatetimeGreaterThanEqualAndReturnDatetimeGreaterThanEqual(
+                depAirportId, arrAirportId, flightInfo.getDepartureDatetime(), flightInfo.getReturnDatetime());
+        List<FlightInfo> flightInfos = flights.stream()
+                .map(flight -> this.modelMapper.map(flight, FlightInfo.class))
+                .collect(Collectors.toList());
+
+
         return flightInfos;
     }
 

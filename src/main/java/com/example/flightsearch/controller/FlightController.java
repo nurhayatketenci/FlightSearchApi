@@ -51,7 +51,7 @@ public class FlightController {
     }
 
     @Operation(
-            method = "GET",
+            method = "POST",
             summary = "get all flights by terms",
             responses = {
                     @ApiResponse(
@@ -67,7 +67,7 @@ public class FlightController {
             }
     )
 
-    @GetMapping
+    @PostMapping("/search")
     public ResponseEntity<List<FlightInfo>> getFlightsByTerms(@RequestBody FlightInfo flightInfoRequest) {
         List<FlightInfo> flightInfos = flightService.getFlightByTerms(flightInfoRequest);
         return ResponseEntity.ok(flightInfos);

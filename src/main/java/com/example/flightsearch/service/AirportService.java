@@ -1,5 +1,6 @@
 package com.example.flightsearch.service;
 
+import com.example.flightsearch.exceptions.AlreadyExistException;
 import com.example.flightsearch.exceptions.NotFoundException;
 import com.example.flightsearch.model.Airport;
 import com.example.flightsearch.repository.AirportRepository;
@@ -15,6 +16,10 @@ public class AirportService {
     private final AirportRepository airportRepository;
 
     public Airport addAirport(Airport airport) {
+        boolean isExist=this.airportRepository.existsByCity(airport.getCity());
+        if(isExist){
+            throw new AlreadyExistException("This airport name already exists!");
+        }
         return airportRepository.save(airport);
     }
     public Airport updateAirport(Long id, Airport updatedAirport) {
